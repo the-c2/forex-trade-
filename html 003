@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Supercars — The Ultimate Garage</title>
+    <meta name="description" content="Showcase of high-performance supercars with specs, gallery, and contact form." />
+    <style>
+        :root{
+            --bg:#0b0f14; --card:#0f1720; --muted:#9aa4b2; --accent:#ff3b3b;
+            --glass: rgba(255,255,255,0.03);
+            font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+        }
+        *{box-sizing:border-box}
+        html,body{height:100%}
+        body{
+            margin:0;
+            background: linear-gradient(180deg,#020305 0%, #071024 60%);
+            color:#e6eef6;
+            -webkit-font-smoothing:antialiased;
+            -moz-osx-font-smoothing:grayscale;
+            line-height:1.45;
+        }
+        a{color:inherit}
+        header{
+            position:sticky; top:0; z-index:20;
+            backdrop-filter: blur(6px);
+            background: linear-gradient(180deg, rgba(11,15,20,0.6), rgba(11,15,20,0.35));
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+        .container{max-width:1100px;margin:0 auto;padding:28px 20px;}
+        .nav{
+            display:flex; gap:16px; align-items:center; justify-content:space-between;
+        }
+        .brand{display:flex;gap:12px;align-items:center;font-weight:600}
+        .logo{
+            width:44px;height:44px;border-radius:8px;
+            background:linear-gradient(135deg,#ff7a7a,#ff3b3b);
+            display:inline-grid;place-items:center;color:#081019;font-weight:700;
+            font-size:18px;
+        }
+        nav a {margin-left:12px;color:var(--muted);text-decoration:none;font-size:14px}
+        .hero{
+            display:grid;grid-template-columns:1fr 420px;gap:28px;align-items:center;margin:40px 0;
+        }
+        .hero-card{
+            background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+            border-radius:16px;padding:28px;box-shadow: 0 6px 30px rgba(2,6,23,0.6);
+        }
+        .kicker{color:var(--accent);font-weight:700;font-size:13px}
+        h1{margin:8px 0 12px;font-size:34px}
+        p.lead{color:var(--muted);margin:0 0 18px}
+        .cta-row{display:flex;gap:12px}
+        .btn{
+            background:linear-gradient(90deg,#ff6b6b,#ff3b3b);
+            padding:12px 16px;border-radius:10px;border:0;color:#071018;font-weight:700;cursor:pointer;
+            box-shadow: 0 6px 18px rgba(255,59,59,0.15);
+        }
+        .btn.ghost{
+            background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);font-weight:600;
+        }
+        .stats{display:flex;gap:12px;margin-top:16px}
+        .stat{background:var(--glass);padding:10px;border-radius:10px;text-align:center;min-width:90px}
+        .right-hero{
+            display:flex;flex-direction:column;gap:12px;
+        }
+        .highlight{
+            background: linear-gradient(180deg,#071028 0%, #08141f 100%);
+            border-radius:12px;padding:14px;display:flex;gap:12px;align-items:center;
+        }
+        .car-thumb{width:100%;height:220px;border-radius:10px;object-fit:cover;display:block}
+        .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+        .filter-btn{
+            background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted);padding:8px 12px;border-radius:999px;
+            cursor:pointer;font-size:13px;
+        }
+        main{padding-bottom:60px}
+        .grid{
+            display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;
+        }
+        .card{
+            background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+            border-radius:12px;padding:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.02);
+        }
+        .card img{width:100%;height:160px;object-fit:cover;border-radius:8px}
+        .card h3{margin:10px 0 6px;font-size:16px}
+        .meta{color:var(--muted);font-size:13px;margin-bottom:8px}
+        .specs{display:flex;gap:10px;flex-wrap:wrap}
+        .spec{background:rgba(255,255,255,0.03);padding:6px 8px;border-radius:8px;font-size:12px;color:var(--muted)}
+        footer{margin-top:40px;color:var(--muted);font-size:14px;text-align:center;padding:16px 0}
+        /* Modal */
+        .modal-backdrop{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,6,14,0.6);z-index:60}
+        .modal{background:#07111a;width:min(920px,95%);border-radius:12px;padding:18px;display:flex;gap:18px;align-items:flex-start}
+        .modal .left{flex:1}
+        .modal img{width:100%;height:420px;object-fit:cover;border-radius:8px}
+        .close{background:transparent;border:0;color:var(--muted);font-weight:700;cursor:pointer}
+        /* Responsive */
+        @media (max-width:900px){
+            .hero{grid-template-columns:1fr;gap:18px}
+            .modal{flex-direction:column}
+            .modal img{height:260px}
+            .right-hero{order:2}
+        }
+        /* small helpers */
+        .search{display:flex;gap:8px;align-items:center;background:var(--glass);padding:8px;border-radius:10px}
+        input[type="search"],input[type="text"],input[type="email"],textarea{
+            background:transparent;border:0;color:inherit;outline:none;font-size:14px;width:100%;
+        }
+        .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+        .badge{background:rgba(255,255,255,0.03);padding:6px 8px;border-radius:8px;font-weight:700;color:var(--muted)}
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container nav" role="banner">
+            <div class="brand">
+                <div class="logo" aria-hidden="true">SC</div>
+                <div>
+                    <div style="font-size:16px">Supercars</div>
+                    <div style="font-size:12px;color:var(--muted)">The Ultimate Garage</div>
+                </div>
+            </div>
+            <nav aria-label="Main">
+                <a href="#gallery">Gallery</a>
+                <a href="#specs">Specs</a>
+                <a href="#contact">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container" role="main">
+        <section class="hero-card hero" aria-labelledby="hero-title">
+            <div>
+                <div class="kicker">Featured</div>
+                <h1 id="hero-title">Experience the Speed — Our Supercar Collection</h1>
+                <p class="lead">A curated selection of high-performance supercars with detailed specs, gallery and contact for inquiries. Explore hypercars, vintage icons and modern beasts.</p>
+
+                <div class="cta-row">
+                    <button class="btn" id="view-gallery">Browse Gallery</button>
+                    <a class="btn ghost" href="#specs">See Specs</a>
+                </div>
+
+                <div class="stats" aria-hidden="true">
+                    <div class="stat"><div style="font-weight:700;font-size:18px">120+</div><div style="font-size:12px;color:var(--muted)">Models</div></div>
+                    <div class="stat"><div style="font-weight:700;font-size:18px">2200</div><div style="font-size:12px;color:var(--muted)">HP Combined</div></div>
+                    <div class="stat"><div style="font-weight:700;font-size:18px">500+</div><div style="font-size:12px;color:var(--muted)">Clients</div></div>
+                </div>
+            </div>
+
+            <aside class="right-hero" aria-label="Highlighted car">
+                <div class="highlight" role="article">
+                    <img src="https://cdn.prod.website-files.com/66992e232dfd58d360ccb246/66992e232dfd58d360ccb342_04A8116_Mobile.webp" style="width:140px;height:100px;object-fit:cover;border-radius:8px;flex-shrink:0">
+                   <div>
+                        <div style="font-weight:700">Ferrari F12 Tribute</div>
+                        <div style="color:var(--muted);font-size:13px">V12, naturally aspirated — handcrafted performance</div>
+                        <div style="margin-top:8px" class="badge">Top Speed 211 mph</div>
+                    </div>
+                </div>
+
+                <div style="display:flex;gap:12px">
+                    <div style="background:var(--glass);padding:12px;border-radius:12px;flex:1;">
+                        <div style="font-weight:700">Book a Test Drive</div>
+                        <div style="color:var(--muted);font-size:13px">Available in select cities</div>
+                    </div>
+                    <div style="background:var(--glass);padding:12px;border-radius:12px;min-width:120px;">
+                        <div style="font-weight:700">Trade-In</div>
+                        <div style="color:var(--muted);font-size:13px">Competitive offers</div>
+                    </div>
+                </div>
+            </aside>
+        </section>
+
+        <section id="gallery" aria-labelledby="gallery-title" style="margin-top:12px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                <h2 id="gallery-title" style="margin:0">Gallery</h2>
+                <div style="display:flex;gap:12px;align-items:center">
+                    <div class="search" role="search" aria-label="Search cars">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="opacity:0.8"><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <input type="search" id="search" placeholder="Search model or make" aria-label="Search by model or make">
+                    </div>
+                </div>
+            </div>
+
+            <div class="filters" role="toolbar" aria-label="Filter cars">
+                <button class="filter-btn" data-filter="all" aria-pressed="true">All</button>
+                <button class="filter-btn" data-filter="modern">Modern</button>
+                <button class="filter-btn" data-filter="classic">Classic</button>
+                <button class="filter-btn" data-filter="hypercars">Hypercars</button>
+            </div>
+
+            <div class="grid" id="cards" aria-live="polite">
+                <!-- Card template repeated -->
+                <article class="card" data-tags="modern hypercars" data-title="Lamborghini Aventador">
+                    <img src="https://www.lamborghini.com/sites/it-en/files/DAM/lamborghini/facelift_2019/model_detail/aventador/s/2021/restyle_03_05/aven_s_s_02_m.jpg" alt="Lamborghini Aventador">
+                    <h3>Lamborghini Aventador</h3>
+                    <div class="meta">V12 · 759 HP · 2.8s 0-60</div>
+                    <div class="specs">
+                        <div class="spec">Top 217 mph</div>
+                        <div class="spec">2020</div>
+                        <div class="spec">RWD</div>
+                    </div>
+                    <div style="margin-top:10px;display:flex;gap:8px">
+                        <button class="btn" data-open>View</button>
+                        <button class="filter-btn" data-copy="Lamborghini Aventador">Copy Name</button>
+                    </div>
+                </article>
+
+                <article class="card" data-tags="modern" data-title="McLaren 720S">
+                    <img src="https://mclaren.scene7.com/is/image/mclaren/720S-Coupe_hero:crop-16x9?wid=1920&hei=1080" alt="McLaren 720S">
+                    <h3>McLaren 720S</h3>
+                    <div class="meta">V8 Twin-Turbo · 710 HP · 2.7s 0-60</div>
+                    <div class="specs">
+                        <div class="spec">Top 212 mph</div>
+                        <div class="spec">2019</div>
+                        <div class="spec">RWD</div>
+                    </div>
+                    <div style="margin-top:10px;display:flex;gap:8px">
+                        <button class="btn" data-open>View</button>
+                        <button class="filter-btn" data-copy="McLaren 720S">Copy Name</button>
+                    </div>
+                </article>
+
+                <article class="card" data-tags="classic" data-title="Ferrari F40">
+                    <img src="https://sothebys-com.brightspotcdn.com/dims4/default/19b378f/2147483647/strip/true/crop/1920x1080+0+0/resize/1154x649!/quality/90/?url=http%3A%2F%2Fsothebys-brightspot.s3.amazonaws.com%2Fdotcom%2F9b%2F98%2Fe57d15814cf9abee1cb5debbbc5c%2Fferrari-f50.jpg" alt="Ferrari F40">
+                    <h3>Ferrari F40</h3>
+                    <div class="meta">V8 Twin-Turbo · 471 HP · Iconic 80s</div>
+                    <div class="specs">
+                        <div class="spec">Top 201 mph</div>
+                        <div class="spec">1987</div>
+                        <div class="spec">RWD</div>
+                    </div>
+                    <div style="margin-top:10px;display:flex;gap:8px">
+                        <button class="btn" data-open>View</button>
+                        <button class="filter-btn" data-copy="Ferrari F40">Copy Name</button>
+                    </div>
+                </article>
+
+                <article class="card" data-tags="hypercars modern" data-title="Bugatti Chiron">
+                    <img src="https://stimg.cardekho.com/images/carexteriorimages/930x620/Bugatti/Chiron/8451/1633582433934/front-left-side-47.jpg" alt="Bugatti Chiron">
+                    <h3>Bugatti Chiron</h3>
+                    <div class="meta">W16 Quad-Turbo · 1500 HP · 261+ mph</div>
+                    <div class="specs">
+                        <div class="spec">Top 261 mph</div>
+                        <div class="spec">2018</div>
+                        <div class="spec">AWD</div>
+                    </div>
+                    <div style="margin-top:10px;display:flex;gap:8px">
+                        <button class="btn" data-open>View</button>
+                        <button class="filter-btn" data-copy="Bugatti Chiron">Copy Name</button>
+                    </div>
+                </article>
+
+                <article class="card" data-tags="classic" data-title="Porsche 911 GT1">
+                    <img src="https://newsroom.porsche.com/.imaging/mte/porsche-templating-theme/image_1290x726/dam/pnr/2024/Products/992-II/0840_nevada_coupe_u-crane_AKOS0607_edit_V03-sky.jpg/jcr:content/0840_nevada_coupe_u-crane_AKOS0607_edit_V03-sky.jpg" alt="Porsche 911">
+                    <h3>Porsche 911 GT1</h3>
+                    <div class="meta">Flat-6 · Racing DNA · Limited</div>
+                    <div class="specs">
+                        <div class="spec">Top 197 mph</div>
+                        <div class="spec">1998</div>
+                        <div class="spec">RWD</div>
+                    </div>
+                    <div style="margin-top:10px;display:flex;gap:8px">
+                        <button class="btn" data-open>View</button>
+                        <button class="filter-btn" data-copy="Porsche 911 GT1">Copy Name</button>
+                    </div>
+                </article>
+
+                <article class="card" data-tags="modern hypercars" data-title="Koenigsegg Jesko">
+                    <img src="https://hips.hearstapps.com/hmg-prod/images/koenigsegg-jesko-101-1551799580.jpg?crop=1.00xw:0.929xh;0,0.0288xh&resize=1200:*" alt="Koenigsegg Jesko">
+                    <h3>Koenigsegg Jesko</h3>
+                    <div class="meta">V8 Twin-Turbo · 1600 HP · Track Beast</div>
+                    <div class="specs">
+                        <div class="spec">Top 300+ mph*</div>
+                        <div class="spec">2021</div>
+                        <div class="spec">RWD/AWD</div>
+                    </div>
+                    <div style="margin-top:10px;display:flex;gap:8px">
+                        <button class="btn" data-open>View</button>
+                        <button class="filter-btn" data-copy="Koenigsegg Jesko">Copy Name</button>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section id="specs" style="margin-top:32px">
+            <h2 style="margin-bottom:12px">Detailed Specs</h2>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
+                <div class="card">
+                    <h3>Engine Types</h3>
+                    <p class="meta">V8, V10, V12, W16, Hybrid setups — state-of-the-art engineering.</p>
+                    <ul style="color:var(--muted);margin:8px 0 0;padding-left:18px">
+                        <li>High revving naturally aspirated V12</li>
+                        <li>Lightweight twin-turbo V8s</li>
+                        <li>W16 for ultimate top speed</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Performance</h3>
+                    <p class="meta">Acceleration, top speed, power-to-weight ratio and aerodynamics.</p>
+                    <div style="display:flex;gap:8px;margin-top:8px">
+                        <div class="spec">0-60 under 2.5s</div>
+                        <div class="spec">Downforce tuned</div>
+                        <div class="spec">Carbon fiber chassis</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Technology</h3>
+                    <p class="meta">Active aero, adaptive suspension, torque vectoring.</p>
+                    <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+                        <div class="spec">Traction Control</div>
+                        <div class="spec">Launch Control</div>
+                        <div class="spec">ERMS</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" style="margin-top:32px">
+            <h2>Contact</h2>
+            <p class="meta">Inquiries, test drives and special requests. We'll respond within 48 hours.</p>
+
+            <form id="contactForm" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:12px">
+                <label style="display:block">
+                    <span class="sr-only">Name</span>
+                    <input type="text" name="name" placeholder="Your name" required style="padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit">
+                </label>
+                <label style="display:block">
+                    <span class="sr-only">Email</span>
+                    <input type="email" name="email" placeholder="Email" required style="padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit">
+                </label>
+                <label style="grid-column:1/-1;display:block">
+                    <span class="sr-only">Message</span>
+                    <textarea name="message" rows="5" placeholder="Message" required style="padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;width:100%"></textarea>
+                </label>
+                <div style="grid-column:1/-1;display:flex;gap:8px;align-items:center">
+                    <button class="btn" type="submit">Send Message</button>
+                    <div id="form-status" style="color:var(--muted)"></div>
+                </div>
+            </form>
+        </section>
+
+        <footer>
+            © <span id="year"></span> Supercars — Built with speed and precision.
+        </footer>
+    </main>
+
+    <!-- Modal -->
+    <div class="modal-backdrop" id="modal" role="dialog" aria-modal="true" aria-hidden="true">
+        <div class="modal" role="document">
+            <div class="left">
+                <img id="modal-img" src="" alt="">
+            </div>
+            <div style="flex:0 0 320px">
+                <button class="close" id="modal-close" aria-label="Close">✕</button>
+                <h3 id="modal-title" style="margin-top:6px">Model</h3>
+                <p id="modal-desc" class="meta">Details</p>
+                <div id="modal-specs" style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"></div>
+                <div style="margin-top:12px">
+                    <button class="btn" id="inquire">Inquire</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Basic UI interactions: filters, search, modal, copy name, contact form
+        (function(){
+            const grid = document.getElementById('cards');
+            const cards = Array.from(grid.querySelectorAll('.card'));
+            const filters = Array.from(document.querySelectorAll('.filter-btn[data-filter], .filters .filter-btn'));
+            const searchInput = document.getElementById('search');
+            const viewGallery = document.getElementById('view-gallery');
+            const modal = document.getElementById('modal');
+            const modalImg = document.getElementById('modal-img');
+            const modalTitle = document.getElementById('modal-title');
+            const modalDesc = document.getElementById('modal-desc');
+            const modalSpecs = document.getElementById('modal-specs');
+            const modalClose = document.getElementById('modal-close');
+            const year = document.getElementById('year');
+            const form = document.getElementById('contactForm');
+            const formStatus = document.getElementById('form-status');
+
+            year.textContent = new Date().getFullYear();
+
+            // Filter logic
+            function applyFilter(tag){
+                cards.forEach(c=>{
+                    const tags = c.getAttribute('data-tags') || '';
+                    const title = (c.getAttribute('data-title') || '').toLowerCase();
+                    const query = searchInput.value.trim().toLowerCase();
+                    const matchesTag = (tag === 'all') || tags.split(/\s+/).includes(tag);
+                    const matchesSearch = !query || title.includes(query);
+                    c.style.display = (matchesTag && matchesSearch) ? '' : 'none';
+                });
+            }
+
+            // init filter buttons
+            const filterBtns = document.querySelectorAll('.filters .filter-btn');
+            filterBtns.forEach(btn=>{
+                btn.addEventListener('click', ()=> {
+                    filterBtns.forEach(b=>b.setAttribute('aria-pressed','false'));
+                    btn.setAttribute('aria-pressed','true');
+                    applyFilter(btn.dataset.filter || 'all');
+                });
+            });
+
+            // Global filter buttons (card-level copy etc)
+            document.addEventListener('click', (e)=>{
+                const open = e.target.closest('[data-open]');
+                if(open){
+                    const card = open.closest('.card');
+                    openCard(card);
+                    return;
+                }
+                const copyBtn = e.target.closest('[data-copy]');
+                if(copyBtn){
+                    const text = copyBtn.dataset.copy || '';
+                    if(navigator.clipboard){
+                        navigator.clipboard.writeText(text).then(()=> {
+                            copyBtn.textContent = 'Copied';
+                            setTimeout(()=> copyBtn.textContent = 'Copy Name', 1200);
+                        });
+                    }
+                    return;
+                }
+            });
+
+            // Search
+            searchInput.addEventListener('input', ()=>{
+                const active = document.querySelector('.filters .filter-btn[aria-pressed="true"]');
+                const tag = active ? active.dataset.filter : 'all';
+                applyFilter(tag);
+            });
+
+            // Open modal with card info
+            function openCard(card){
+                if(!card) return;
+                const img = card.querySelector('img');
+                modalImg.src = img.src;
+                modalImg.alt = img.alt || '';
+                modalTitle.textContent = card.querySelector('h3').textContent;
+                modalDesc.textContent = card.querySelector('.meta').textContent;
+                modalSpecs.innerHTML = '';
+                card.querySelectorAll('.spec').forEach(s=>{
+                    const el = document.createElement('div');
+                    el.className = 'spec';
+                    el.textContent = s.textContent;
+                    modalSpecs.appendChild(el);
+                });
+                document.body.style.overflow = 'hidden';
+                modal.style.display = 'flex';
+                modal.setAttribute('aria-hidden','false');
+                modalClose.focus();
+            }
+
+            modalClose.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e)=> {
+                if(e.target === modal) closeModal();
+            });
+            document.addEventListener('keydown', (e)=>{
+                if(e.key === 'Escape' && modal.style.display === 'flex') closeModal();
+            });
+            function closeModal(){
+                modal.style.display = 'none';
+                modal.setAttribute('aria-hidden','true');
+                document.body.style.overflow = '';
+            }
+
+            // view gallery button
+            viewGallery.addEventListener('click', ()=> {
+                document.getElementById('gallery').scrollIntoView({behavior:'smooth'});
+            });
+
+            // Contact form simple validation & mock submit
+            form.addEventListener('submit', (e)=>{
+                e.preventDefault();
+                formStatus.textContent = 'Sending...';
+                const data = new FormData(form);
+                // Simulate network request
+                setTimeout(()=>{
+                    formStatus.textContent = 'Message sent. Thank you!';
+                    form.reset();
+                }, 900);
+            });
+
+            // Progressive enhancement: pre-apply 'all'
+            applyFilter('all');
+
+            // Accessibility: allow opening modal with Enter on card buttons
+            document.addEventListener('keydown', (e)=>{
+                if(e.key === 'Enter' && document.activeElement && document.activeElement.matches('[data-open]')) {
+                    const card = document.activeElement.closest('.card');
+                    openCard(card);
+                }
+            });
+
+            // Lazy load images (basic)
+            if('IntersectionObserver' in window){
+                const imgs = document.querySelectorAll('img');
+                const io = new IntersectionObserver((entries, obs)=>{
+                    entries.forEach(ent=>{
+                        if(ent.isIntersecting){
+                            const img = ent.target;
+                            // images already loaded via src, placeholder behavior not required. Could be used with data-src.
+                            obs.unobserve(img);
+                        }
+                    });
+                }, {rootMargin:'200px'});
+                imgs.forEach(i=>io.observe(i));
+            }
+
+        })();
+    </script>
+</body>
+</html>

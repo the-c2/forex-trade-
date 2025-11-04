@@ -1,0 +1,108 @@
+  <!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Car Gallery</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <a class="brand" href="#">
+            <div class="logo">FT</div>
+            <div>
+                <div style="font-weight:700">Forex Trade</div>
+                <div style="font-size:13px;color:var(--muted)">Car showcase</div>
+            </div>
+        </a>
+        <nav>
+            <a href="#">Home</a>
+            <a href="#">Gallery</a>
+            <a href="#">Compare</a>
+            <a href="#">Contact</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="card">
+                <h1>Premium cars, curated.</h1>
+                <p class="lead">Explore a hand-picked collection of performance and luxury cars with specs, gallery and comparison.</p>
+                <div class="cta">
+                    <button class="btn" id="exploreBtn">Explore gallery</button>
+                    <button class="btn secondary">Learn more</button>
+                </div>
+
+                <div class="section">
+                    <h3 style="margin-top:18px">Featured</h3>
+                    <div class="featured card" style="margin-top:8px">
+                        <img src="https://images.unsplash.com/photo-1511919884226-fd3cad34687c?w=1200&q=80&auto=format&fit=crop" alt="featured car">
+                        <div class="specs" style="margin-top:8px">
+                            <div class="spec"><b>Top speed</b><span>320 km/h</span></div>
+                            <div class="spec"><b>0-100</b><span>3.1s</span></div>
+                            <div class="spec"><b>Power</b><span>720 hp</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <aside>
+                <div class="card">
+                    <h3 style="margin:0 0 8px 0">Compare quick</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Model</th><th>0-100</th><th>Top</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Model A</td><td>3.1s</td><td>320 km/h</td></tr>
+                            <tr><td>Model B</td><td>3.8s</td><td>300 km/h</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </aside>
+        </section>
+
+        <section class="section">
+            <h3>Gallery</h3>
+            <div class="grid" id="gallery">
+                <div class="thumb card" data-title="Red Sport" data-src="https://images.unsplash.com/photo-1542362567-b07e54358753?w=1200&q=80&auto=format&fit=crop">
+                    <img src="https://images.unsplash.com/photo-1542362567-b07e54358753?w=800&q=60&auto=format&fit=crop" alt="">
+                    <div class="meta">Red Sport</div>
+                </div>
+                <div class="thumb card" data-title="Classic Coupe" data-src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1200&q=80&auto=format&fit=crop">
+                    <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&q=60&auto=format&fit=crop" alt="">
+                    <div class="meta">Classic Coupe</div>
+                </div>
+                <div class="thumb card" data-title="Modern GT" data-src="https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?w=1200&q=80&auto=format&fit=crop">
+                    <img src="https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?w=800&q=60&auto=format&fit=crop" alt="">
+                    <div class="meta">Modern GT</div>
+                </div>
+                <div class="thumb card" data-title="Luxury Sedan" data-src="https://images.unsplash.com/photo-1493238792000-8113da705763?w=1200&q=80&auto=format&fit=crop">
+                    <img src="https://images.unsplash.com/photo-1493238792000-8113da705763?w=800&q=60&auto=format&fit=crop" alt="">
+                    <div class="meta">Luxury Sedan</div>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            © 2025 Forex Trade — All rights reserved.
+        </footer>
+    </main>
+
+    <!-- modal -->
+    <div class="modal" id="modal">
+        <div class="modal-card">
+            <img id="modalImage" src="" alt="">
+            <div class="modal-body">
+                <h3 id="modalTitle">Title</h3>
+                <p id="modalDesc">High-resolution image and details.</p>
+                <button class="close" id="modalClose">Close ✕</button>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+    <style>
+    <link rel="stylesheet" href="style.css">
+    </style>
+</body> 
+</html>

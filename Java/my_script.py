@@ -46,4 +46,4 @@ while True:
         print(f"Error: {e}")
 
     time.sleep(60)  # Check every minute
-    
+    <get_stats(100)> # Check every minute
