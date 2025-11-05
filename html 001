@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>MiniGram — lightweight Instagram-like demo</title>
+    <style>
+        :root{
+            --bg:#fafafa; --card:#fff; --muted:#8e8e8e; --accent:#3897f0;
+            --border: #dbdbdb; --shadow: 0 1px 3px rgba(0,0,0,0.08);
+            font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+        }
+        html,body{height:100%}
+        body{
+            margin:0; background:var(--bg); color:#111; display:flex; justify-content:center;
+            font-size:14px; line-height:1.4;
+        }
+        .app{
+            width:980px; max-width:100%; padding:20px; box-sizing:border-box;
+            display:flex; gap:20px;
+        }
+
+        /* sidebar */
+        .sidebar{width:300px; flex:none}
+        .main{flex:1; min-width:320px}
+
+        header.app-header{
+            height:56px; display:flex; align-items:center; justify-content:space-between;
+            background:transparent; margin-bottom:14px;
+        }
+        .logo{font-weight:700; letter-spacing:1px; font-size:20px}
+        .search input{
+            width:220px; padding:8px 10px; border-radius:6px; border:1px solid var(--border);
+            background: #fff;
+        }
+        .user-row{
+            display:flex; align-items:center; gap:12px; background:var(--card); padding:12px;
+            border-radius:8px; box-shadow:var(--shadow); border:1px solid var(--border);
+        }
+        .avatar{
+            width:56px; height:56px; border-radius:50%; overflow:hidden; flex:none;
+            background:linear-gradient(135deg,#f6a5a5,#ffb199); display:flex; align-items:center; justify-content:center;
+            color:white; font-weight:700;
+        }
+        .user-meta{flex:1;}
+        .user-meta .name{font-weight:700}
+        .user-meta .sub{color:var(--muted); font-size:13px}
+
+        /* composer */
+        .composer{background:var(--card); padding:12px; border-radius:8px; margin:12px 0; border:1px solid var(--border)}
+        .composer textarea{width:100%; resize:vertical; min-height:60px; border:1px solid var(--border); padding:8px; border-radius:6px; font-family:inherit}
+        .composer .controls{display:flex; gap:8px; margin-top:8px; align-items:center}
+        .btn{background:var(--accent); color:white; padding:8px 12px; border-radius:6px; border:none; cursor:pointer}
+        .btn.secondary{background:#fff; color:#111; border:1px solid var(--border)}
+        .uploader{display:flex; gap:8px; align-items:center}
+
+        /* feed */
+        .post{background:var(--card); margin-bottom:16px; border-radius:8px; border:1px solid var(--border); box-shadow:var(--shadow)}
+        .post .post-header{display:flex; gap:12px; padding:12px; align-items:center}
+        .post .post-header .meta{flex:1}
+        .post img.main-img{width:100%; max-height:600px; object-fit:cover; display:block; border-top-left-radius:8px; border-top-right-radius:8px}
+        .post .post-actions{display:flex; gap:12px; padding:10px 12px; align-items:center}
+        .post .likes{font-weight:700}
+        .post .caption{padding:0 12px 12px; color:#111}
+        .comments{padding:0 12px 12px}
+        .comments .comment{padding:6px 0; border-top:1px solid #f0f0f0}
+        .comment small{color:var(--muted); margin-left:6px}
+        .comment-form{display:flex; gap:8px; padding:8px 12px; border-top:1px solid #f0f0f0}
+        .comment-form input{flex:1; padding:8px; border:1px solid var(--border); border-radius:6px}
+
+        /* responsive */
+        @media (max-width:900px){
+            .app{flex-direction:column; padding:12px}
+            .sidebar{order:2; width:auto}
+            .main{order:1}
+        }
+    </style>
+</head>
+<body>
+    <div class="app" role="application" aria-label="MiniGram">
+        <div class="main">
+            <header class="app-header">
+                <div class="logo">MiniGram</div>
+                <div class="search"><input id="searchInput" placeholder="Search..." /></div>
+            </header>
+
+            <section class="composer" aria-label="Create post">
+                <div style="display:flex; gap:12px; align-items:center;">
+                    <input id="fileInput" type="file" accept="image/*" />
+                    <div style="flex:1">
+                        <textarea id="caption" placeholder="Write a caption..."></textarea>
+                        <div class="controls">
+                            <input id="username" placeholder="Username" style="padding:8px; border:1px solid var(--border); border-radius:6px;" value="you"/>
+                            <button id="postBtn" class="btn">Post</button>
+                            <button id="clearBtn" class="btn secondary">Clear</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <main id="feed"></main>
+        </div>
+
+        <aside class="sidebar">
+            <div class="user-row">
+                <div class="avatar" id="profileAvatar">Y</div>
+                <div class="user-meta">
+                    <div class="name" id="profileName">you</div>
+                    <div class="sub">Welcome to MiniGram — local demo</div>
+                </div>
+            </div>
+
+            <div style="margin-top:12px;">
+                <div style="font-weight:700; margin-bottom:8px; color:var(--muted)">Suggested</div>
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                    <div style="background:var(--card); padding:8px; border-radius:8px; border:1px solid var(--border)">
+                        <div style="font-weight:700">sample_user</div>
+                        <div style="color:var(--muted); font-size:13px">Try uploading a photo</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top:14px; color:var(--muted); font-size:13px">
+                This demo stores posts in your browser (localStorage). Images are encoded as data URLs, so keep sizes small.
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        // Simple Instagram-like static demo.
+        // Data model: posts = [{id, user, caption, imgDataUrl, likes, likedByYou, comments: [{user,text}], createdAt}]
+        const STORAGE_KEY = 'mini_gram_posts_v1';
+
+        // Helpers
+        const el = id => document.getElementById(id);
+        const now = () => new Date().toISOString();
+        const readStorage = () => JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        const writeStorage = v => localStorage.setItem(STORAGE_KEY, JSON.stringify(v));
+
+        // Init sample posts only if storage empty
+        function seedSample() {
+            let posts = readStorage();
+            if (posts.length) return;
+            posts = [
+                {
+                    id: cryptoRandomId(),
+                    user: 'sunsetlover',
+                    caption: 'Warm evening vibes 🌇',
+                    imgDataUrl: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=1200&q=80&auto=format&fit=crop',
+                    likes: 12,
+                    likedByYou: false,
+                    comments: [{user:'anna', text:'Beautiful!'},{user:'mike',text:'Where is this?'}],
+                    createdAt: now()
+                },
+                {
+                    id: cryptoRandomId(),
+                    user: 'citywalker',
+                    caption: 'Morning coffee and coding ☕️',
+                    imgDataUrl: 'https://images.unsplash.com/photo-1511920170033-f8396924c348?w=1200&q=80&auto=format&fit=crop',
+                    likes: 34,
+                    likedByYou: false,
+                    comments: [],
+                    createdAt: now()
+                }
+            ];
+            writeStorage(posts);
+        }
+
+        function cryptoRandomId(){
+            try{
+                return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c/4).toString(16));
+            }catch(e){
+                return Math.random().toString(36).slice(2,10);
+            }
+        }
+
+        // Rendering
+        function renderFeed(filter=''){
+            const feed = el('feed');
+            feed.innerHTML = '';
+            let posts = readStorage();
+            if (filter.trim()){
+                const q = filter.trim().toLowerCase();
+                posts = posts.filter(p => p.caption.toLowerCase().includes(q) || p.user.toLowerCase().includes(q));
+            }
+            // newest first
+            posts.sort((a,b)=> new Date(b.createdAt) - new Date(a.createdAt));
+            if (!posts.length) {
+                feed.innerHTML = '<div style="color:var(--muted); text-align:center; padding:40px">No posts yet. Upload a photo to get started.</div>';
+                return;
+            }
+
+            for (const p of posts){
+                const post = document.createElement('article');
+                post.className = 'post';
+                post.innerHTML = `
+                    <div class="post-header">
+                        <div style="width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg,#ffd89b,#19547b); display:flex; align-items:center; justify-content:center; color:white; font-weight:700;">
+                            ${escapeHtml(p.user[0]||'?')}
+                        </div>
+                        <div class="meta">
+                            <div style="display:flex; align-items:center; justify-content:space-between;">
+                                <div>
+                                    <div style="font-weight:700">${escapeHtml(p.user)}</div>
+                                    <div style="font-size:13px; color:var(--muted)">${timeAgo(p.createdAt)}</div>
+                                </div>
+                                <div style="font-size:12px; color:var(--muted)"><button data-id="${p.id}" class="del-btn" style="background:transparent;border:none;color:var(--muted);cursor:pointer">⋯</button></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <img class="main-img" src="${escapeAttr(p.imgDataUrl)}" alt="${escapeAttr(p.caption||'post image')}" />
+                    </div>
+                    <div class="post-actions">
+                        <button class="like-btn" data-id="${p.id}" style="background:none;border:none;cursor:pointer;font-size:16px">${p.likedByYou ? '❤️' : '🤍'}</button>
+                        <div class="likes">${p.likes} likes</div>
+                    </div>
+                    <div class="caption"><strong>${escapeHtml(p.user)}</strong> ${escapeHtml(p.caption)}</div>
+                    <div class="comments">
+                        ${p.comments.map(c => `<div class="comment"><strong>${escapeHtml(c.user)}</strong> ${escapeHtml(c.text)} <small>${timeAgo(c.createdAt||p.createdAt)}</small></div>`).join('')}
+                    </div>
+                    <form class="comment-form" data-id="${p.id}">
+                        <input name="comment" placeholder="Add a comment..." />
+                        <button class="btn" type="submit">Post</button>
+                    </form>
+                `;
+                // events: like toggle, comment submit, delete
+                feed.appendChild(post);
+            }
+        }
+
+        // Utilities
+        function timeAgo(iso){
+            const then = new Date(iso);
+            const diff = Math.floor((Date.now()-then)/1000);
+            if (diff < 60) return `${diff}s`;
+            if (diff < 3600) return `${Math.floor(diff/60)}m`;
+            if (diff < 86400) return `${Math.floor(diff/3600)}h`;
+            return `${Math.floor(diff/86400)}d`;
+        }
+        function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+        function escapeAttr(s){ return escapeHtml(s).replace(/"/g,'&quot;') }
+
+        // Actions
+        function toggleLike(id){
+            const posts = readStorage();
+            const p = posts.find(x=>x.id===id);
+            if (!p) return;
+            if (p.likedByYou){ p.likedByYou = false; p.likes = Math.max(0, p.likes-1); }
+            else { p.likedByYou = true; p.likes = (p.likes||0)+1; }
+            writeStorage(posts);
+            renderFeed(el('searchInput').value);
+        }
+
+        function addComment(id, user, text){
+            if (!text.trim()) return;
+            const posts = readStorage();
+            const p = posts.find(x=>x.id===id);
+            if (!p) return;
+            p.comments = p.comments || [];
+            p.comments.push({user: user||'you', text: text.trim(), createdAt: now()});
+            writeStorage(posts);
+            renderFeed(el('searchInput').value);
+        }
+
+        function deletePost(id){
+            if(!confirm('Delete this post?')) return;
+            let posts = readStorage();
+            posts = posts.filter(p=>p.id!==id);
+            writeStorage(posts);
+            renderFeed(el('searchInput').value);
+        }
+
+        // Create post from file input
+        async function createPostFromFile(file, caption, username){
+            if (!file) { alert('Please choose an image file.'); return; }
+            if (!file.type.startsWith('image/')) { alert('Not an image file.'); return; }
+            // keep size reasonable
+            const maxDim = 1200;
+            const dataUrl = await fileToDataUrlResized(file, maxDim);
+            const posts = readStorage();
+            const p = {
+                id: cryptoRandomId(),
+                user: username || 'you',
+                caption: caption || '',
+                imgDataUrl: dataUrl,
+                likes: 0,
+                likedByYou: false,
+                comments: [],
+                createdAt: now()
+            };
+            posts.push(p);
+            writeStorage(posts);
+            el('caption').value = '';
+            el('fileInput').value = '';
+            renderFeed(el('searchInput').value);
+        }
+
+        function fileToDataUrlResized(file, maxDim){
+            return new Promise((res, rej)=>{
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const img = new Image();
+                    img.onload = () => {
+                        let {width:w, height:h} = img;
+                        if (Math.max(w,h) > maxDim){
+                            const ratio = maxDim / Math.max(w,h);
+                            w = Math.round(w*ratio); h = Math.round(h*ratio);
+                        }
+                        const canvas = document.createElement('canvas');
+                        canvas.width = w; canvas.height = h;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img,0,0,w,h);
+                        const q = 0.85;
+                        const data = canvas.toDataURL('image/jpeg', q);
+                        res(data);
+                    };
+                    img.onerror = rej;
+                    img.src = reader.result;
+                };
+                reader.onerror = rej;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Events wiring
+        function attachGlobalHandlers(){
+            document.addEventListener('click', e=>{
+                const like = e.target.closest('.like-btn');
+                if (like){
+                    toggleLike(like.dataset.id);
+                }
+                const del = e.target.closest('.del-btn');
+                if (del){
+                    // quick delete menu: currently just delete
+                    deletePost(del.dataset.id);
+                }
+            });
+
+            // delegate comment forms
+            document.addEventListener('submit', e=>{
+                if (e.target.matches('.comment-form')){
+                    e.preventDefault();
+                    const id = e.target.dataset.id;
+                    const input = e.target.querySelector('input[name="comment"]');
+                    addComment(id, el('username').value || 'you', input.value);
+                }
+            });
+
+            // Post button
+            el('postBtn').addEventListener('click', async ()=>{
+                const file = el('fileInput').files[0];
+                const cap = el('caption').value;
+                const user = el('username').value || 'you';
+                if (!file){ alert('Pick an image first'); return; }
+                // larger files might take a bit — show quick disabled state
+                el('postBtn').disabled = true;
+                el('postBtn').textContent = 'Posting...';
+                try{
+                    await createPostFromFile(file, cap, user);
+                }catch(err){
+                    alert('Failed to create post: '+ err.message);
+                }
+                el('postBtn').disabled = false;
+                el('postBtn').textContent = 'Post';
+            });
+
+            el('clearBtn').addEventListener('click', ()=>{ el('caption').value=''; el('fileInput').value=''; });
+
+            // search
+            el('searchInput').addEventListener('input', e=>{
+                renderFeed(e.target.value);
+            });
+
+            // set profile display
+            el('username').addEventListener('input', e=>{
+                el('profileName').textContent = e.target.value || 'you';
+                el('profileAvatar').textContent = (e.target.value||'you')[0].toUpperCase();
+            });
+
+            // allow double-click like on images
+            document.addEventListener('dblclick', e=>{
+                if (e.target.matches('.main-img')){
+                    const article = e.target.closest('.post');
+                    const btn = article.querySelector('.like-btn');
+                    if (btn) toggleLike(btn.dataset.id);
+                }
+            });
+
+            // keyboard: Ctrl+Enter in caption to post
+            el('caption').addEventListener('keydown', e=>{
+                if ((e.ctrlKey||e.metaKey) && e.key === 'Enter'){ el('postBtn').click(); }
+            });
+        }
+
+        // Initialize
+        (function init(){
+            seedSample();
+            attachGlobalHandlers();
+            // render
+            renderFeed();
+        })();
+
+        // Safe minimal polyfills (avoid heavy libs)
+    </script>
+</body>
+</html>
